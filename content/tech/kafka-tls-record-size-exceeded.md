@@ -222,8 +222,12 @@ broker getting stuck during SSL/TLS handshake.
 ## Thanks
 
 The whole search for root cause was a slow moving train that gained speed with
-help from some clever folks. I just happened to be the one who owns the module
-responsible for fixing this 🙂
+help from some clever folks. [Ming Wen](https://bitmingw.com) helped identify
+where Kafka was getting stuck and Mark Boon, our in house X509 certificate
+expert suggested how to approach the problem with a custom TrustManager.
+
+Being in the platform engineering team, I'm usually the one connecting the
+dots/teams/modules and figuring out where is the ideal place to fix it 🙂
 
 **TIL**
 
@@ -236,4 +240,3 @@ responsible for fixing this 🙂
 [4] https://tools.ietf.org/html/rfc5246#page-53
 
 [5] https://docs.oracle.com/en/java/javase/11/security/java-secure-socket-extension-jsse-reference-guide.html#GUID-E1205974-3249-4E40-83C0-5F89C7375CF4
-
