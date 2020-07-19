@@ -5,26 +5,26 @@ slug: ""
 description: ""
 keywords: []
 draft: false
-tags: ["tech", "scale"]
+tags: ["tech", "scale", "kafka", "ssl", "tls"]
 math: false
 toc: true
 ---
 
 ## Pre-requisites
 
-This post assumes you know what is TLS, keystore, truststore, how they all
-mingle together in the context of a specific service.
+This post assumes you know what is SSL, TLS, keystore, truststore and  how they
+all mingle together in the context of a specific service.
 
 The problem described is in the context of Kafka, but may happen with other web
 services using TLS as well. The fix may be similar, but you would have to make
-the trade-off of whether it is acceptable for your service clients :)
+the trade-off of whether it is acceptable for your service clients.
 
 ## Problem
 
 ### Kafka clients are unable to connect to the broker
 
-I observed a strange behaviour in our scale test - after a sync of all the
-client self-signed certificates to the broker truststore, none of the clients
+We observed a strange behaviour in our scale test - after a sync of all the
+client _self-signed_ certificates to the broker truststore, none of the clients
 were able to connect.
 
 Kafka's `server.log` would show that is awaiting socket connections as the last
@@ -54,38 +54,37 @@ Jul 02 16:13:11 broker kafka[10663]:         at kafka.Kafka$.main(Kafka.scala:84
 Jul 02 16:13:11 broker kafka[10663]:         at kafka.Kafka.main(Kafka.scala)
 ```
 
-This led me to the next part - of understanding the handshake process of SSL/TLS.
+This led us to the next part - of understanding the handshake process of SSL/TLS.
 
 ### Kafka and SSL
 
-Kafka has a couple of ways managing truststore when SSL is enabled
-[[1](https://docs.confluent.io/current/kafka/authentication_ssl.html)].
+Kafka has <cite>a couple of ways of managing truststore [^1]</cite> when SSL is
+enabled.
 
 1. The truststore contains one or many certificates: the broker or logical
-client will trust any certificate listed in the truststore.
+client will trust _any certificate listed in the truststore_.
 2. The truststore contains a Certificate Authority (CA): the broker or logical
-client will trust any certificate that was signed by the CA in the truststore.
-Described with a diagram here
-[[2](https://github.com/confluentinc/confluent-platform-security-tools/blob/master/single-trust-store-diagram.pdf)].
+client will trust _any certificate that was signed by the CA in the truststore_.
+Described in a diagram <cite>here.[^2]</cite>
 
-With the approach described in point 2, you are probably handling a handful of
-certificates at most.
+With the approach described in point 2, you are most likely to have a handful
+of certificates in the truststore.
 
-On the off chance that all your clients use self-signed certificate and you
-import all the certificates into the broker truststore, you probably need to
-keep track of the total size of all the certificates combined. I will
-elaborate why in the next section.
+On the off chance that all your clients use self-signed certificate and you go
+with approach 1; to import all the certificates into the broker truststore, you
+would need to keep track of the total size of all the certificates combined.
+Let me will elaborate *why* in the next section.
 
 ### SSL/TLS Handshake
 
 The TCP layer equivalent of SSL is TLS - which handles the handshake. As part 
-of the TLS protocol, a handshake consists of the steps explained here
-[[3](https://hpbn.co/transport-layer-security-tls/)].
+of the TLS protocol,
+<cite>a handshake consists of the steps explained here. [^3]</cite>
 
 ![TLS handshake protocol](/img/kafka-tls-record-size-exceeded/tls-handshake.svg)
 
-Of special note is the *Certificate Request* step
-[[4](https://tools.ietf.org/html/rfc5246#page-53)] - it is an optional step, to
+Of special note is the `Certificate Request` step described in detail in the
+<cite>TLS RFC-5246 [^4]</cite> - it is an optional step, to
 send the list of known CAs to the client. This is to help client identify which
 certificate to send during the handshake; in case it has multiple certs signed
 by different certificate authorities.
@@ -106,22 +105,22 @@ Key thing to notice here is that the sending of `certificate_authorities` is an
 optional step. Depending on your use case, you may be fine with skipping that
 step.
 
-In my case, I knew all the client were on the internal subnet, they all used
-self-signed certificate and they would always have one and only one certificate
-as its identity. So there will not be disambiguity about which certificate to
-send based on the known CA list.
+In my case, we knew all the client were on the internal subnet, they all used
+self-signed certificate and they would always have _one and only one_
+certificate as its identity. There will not be ambiguity at the client side
+about which certificate to send based on the known CA certificates list.
 
-So I could unilaterally decide to skip the optional step. But how do we do that
-exactly?
+So we could unilaterally decide to skip the optional step; YMMV. But how do we
+do that exactly?
 
 ## Solution
 
 ### KIP-519 Make SSL context/engine configuration extensible
 
 Luckily, the developers of Kafka were aware of this requirement based on growing
-use cases in matured enterprise environments. They already had a feature in
-the works, which was not released yet, but was available if you built a
-Kafka distribution from the trunk branch on _git_.
+use cases in matured enterprise environments. They already had <cite>a feature in
+the works [^5]</cite>, which was not released yet, but was available if you
+built a Kafka distribution from git.
 
 ```java
 diff --git a/clients/src/main/java/org/apache/kafka/common/security/ssl/DefaultSslEngineFactory.java b/clients/src/main/java/org/apache/kafka/common/security/ssl/DefaultSslEn
@@ -151,10 +150,9 @@ index f71adaf62..82ce12811 100644
              return sslContext;
 ```
 
-All I wanted to do was override the default TrustManager with my custom
-TrustManager. This is well documented and explained in the Java Secure Socket
-Extension (JSSE) reference guide
-[[5](https://docs.oracle.com/en/java/javase/11/security/java-secure-socket-extension-jsse-reference-guide.html#GUID-E1205974-3249-4E40-83C0-5F89C7375CF4)].
+The goal was to override the default TrustManager with our custom TrustManager.
+This is well documented and explained in the Java Secure Socket Extension
+(JSSE) <cite>reference guide. [^6]</cite>
 
 ### My509TrustManager
 
@@ -221,22 +219,21 @@ broker getting stuck during SSL/TLS handshake.
 
 ## Thanks
 
-The whole search for root cause was a slow moving train that gained speed with
+The whole search for root cause was a slow-moving train that gained speed with
 help from some clever folks. [Ming Wen](https://bitmingw.com) helped identify
-where Kafka was getting stuck and Mark Boon, our in house X509 certificate
-expert suggested how to approach the problem with a custom TrustManager.
+where Kafka was getting stuck and
+[Mark Boon](http://linkedin.com/in/mark-boon-738abb8), our in house X509
+certificate expert suggested how to approach the problem with a custom
+TrustManager.
 
 Being in the platform engineering team, I'm usually the one connecting the
-dots/teams/modules and figuring out where is the ideal place to fix it 🙂
+dots/teams/modules and figuring out where is the ideal place to fix it.
 
 **TIL**
 
-[1] https://docs.confluent.io/current/kafka/authentication_ssl.html
-
-[2] https://github.com/confluentinc/confluent-platform-security-tools/blob/master/single-trust-store-diagram.pdf
-
-[3] https://hpbn.co/transport-layer-security-tls/
-
-[4] https://tools.ietf.org/html/rfc5246#page-53
-
-[5] https://docs.oracle.com/en/java/javase/11/security/java-secure-socket-extension-jsse-reference-guide.html#GUID-E1205974-3249-4E40-83C0-5F89C7375CF4
+[^1]: https://docs.confluent.io/current/kafka/authentication_ssl.html
+[^2]: https://github.com/confluentinc/confluent-platform-security-tools/blob/master/single-trust-store-diagram.pdf
+[^3]: https://hpbn.co/transport-layer-security-tls/
+[^4]: https://tools.ietf.org/html/rfc5246#page-53
+[^5]: https://github.com/apache/kafka/pull/8338
+[^6]: https://docs.oracle.com/en/java/javase/11/security/java-secure-socket-extension-jsse-reference-guide.html#GUID-E1205974-3249-4E40-83C0-5F89C7375CF4

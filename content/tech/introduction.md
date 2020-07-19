@@ -5,7 +5,7 @@ slug: ""
 description: ""
 keywords: []
 draft: false
-tags: ["personal"]
+tags: ["intro"]
 math: false
 toc: false
 ---
