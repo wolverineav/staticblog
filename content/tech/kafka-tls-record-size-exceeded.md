@@ -77,11 +77,9 @@ Let me will elaborate *why* in the next section.
 
 ### SSL/TLS Handshake
 
-The TCP layer equivalent of SSL is TLS - which handles the handshake. As part 
-of the TLS protocol,
-<cite>a handshake consists of the steps explained here. [^3]</cite>
+The TCP layer equivalent of SSL is TLS - which handles the handshake.
 
-![TLS handshake protocol](/img/kafka-tls-record-size-exceeded/tls-handshake.svg)
+![TLS handshake protocol](/img/kafka-tls-record-size-exceeded/tls-handshake.svg)*TLS handshake protocol. More details <cite>here: [^3]</cite>*
 
 Of special note is the `Certificate Request` step described in detail in the
 <cite>TLS RFC-5246 [^4]</cite> - it is an optional step, to
