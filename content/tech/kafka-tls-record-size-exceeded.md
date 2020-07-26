@@ -1,6 +1,6 @@
 ---
 title: "Kafka TLS Record Size Exceeded"
-date: 2020-07-14T18:08:16-07:00
+date: 2020-07-14T16:20:00-07:00
 slug: ""
 description: ""
 keywords: []
