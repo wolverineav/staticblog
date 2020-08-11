@@ -9,6 +9,8 @@ copyright = "© {year}"
 disqusShortname = "wolverineav"
 googleAnalytics = "UA-172766817-1"
 
+enableRobotsTXT = true
+
 # Optional params
 [params]
   # Follow the Hugo date/time format reference here: 
