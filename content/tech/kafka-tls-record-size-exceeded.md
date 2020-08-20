@@ -1,8 +1,8 @@
 ---
 title: "Kafka TLS Record Size Exceeded"
-date: 2020-07-14T16:20:00-07:00
+date: 2020-08-18T16:20:00-07:00
 slug: ""
-description: ""
+description: "Kafka client unable to connect, potentially due to TLS record size limit exceeded. How to resolve using Kafka's extensible SSL context/engine - KIP-519."
 keywords: []
 draft: false
 tags: ["tech", "scale", "kafka", "ssl", "tls"]

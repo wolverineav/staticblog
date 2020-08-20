@@ -13,6 +13,8 @@ enableRobotsTXT = true
 
 # Optional params
 [params]
+  author = "Aditya Vaja"
+  description = "Aditya Vaja's personal blog"
   # Follow the Hugo date/time format reference here: 
   # https://gohugo.io/functions/format/#gos-layout-string
   dateFormat = "2 Jan 2006"

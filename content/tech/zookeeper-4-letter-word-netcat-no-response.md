@@ -1,8 +1,8 @@
 ---
 title: "Zookeeper 4 Letter Word Netcat No Response"
-date: 2020-07-24T16:20:00-07:00
+date: 2020-08-19T16:20:00-07:00
 slug: ""
-description: ""
+description: "Zookeeper 4 letter word commands do not get response via netcat. How to check if Zookeeper is responding and resolve the netcat issue."
 keywords: []
 draft: false
 tags: ["tech", "quickie", "zookeeper", "netcat"]

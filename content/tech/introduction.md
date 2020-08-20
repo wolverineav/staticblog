@@ -1,8 +1,9 @@
 ---
 title: "Introduction"
-date: 2020-07-12T18:03:24-07:00
+date: 2020-08-17T16:20:00-07:00
 slug: ""
-description: ""
+description: "Short description about Aditya Vaja."
+author: "Aditya Vaja"
 keywords: []
 draft: false
 tags: ["intro"]
