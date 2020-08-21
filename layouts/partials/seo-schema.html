@@ -1,0 +1,48 @@
+
+<!-- JSON-LD -->
+    <script type="application/ld+json">
+{{ if (and (.IsPage) (or (eq .Section "blog") (eq .Section "tech"))) }}
+        {
+        "@context" : "http://schema.org",
+        "@type" : "BlogPosting",
+        "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{{ .Site.BaseURL }}"
+        },
+        "articleSection" : "{{ .Section }}",
+        "name" : "{{ .Title }}",
+        "headline" : "{{ .Title }}",
+        "description" : "{{ .Description }}",
+        "inLanguage" : "en-US",
+        "author" : "{{ .Site.Params.author }}",
+        "creator" : "{{ .Site.Params.author }}",
+        "publisher": "{{ .Site.Params.author }}",
+        "accountablePerson" : "{{ .Site.Params.author }}",
+        "copyrightHolder" : "{{ .Site.Params.author }}",
+        "copyrightYear" : "{{ .Date.Format "2006" }}",
+        "datePublished": "{{ .Date }}",
+        "dateModified" : "{{ .Date }}",
+        "url" : "{{ .Permalink }}",
+        "wordCount" : "{{ .WordCount }}",
+        "keywords" : [{{ if isset .Params "keywords" }}{{ range .Params.keywords }}"{{ . }}", {{ end }}{{ end }}]
+        }
+{{ else }}
+        {
+        "@context": "http://schema.org",
+        "@type": "WebSite",
+        "url": "{{ .Permalink }}",
+        "name": "{{ .Title }}",
+        "author": {
+        "@type": "Person",
+        "name": "{{ .Site.Params.name }}"
+        },
+        "description": "{{ if .IsHome }}{{ htmlEscape .Site.Params.description }}{{ else }}{{ htmlEscape .Description }}{{ end }}"
+        }
+{{ end }}
+    </script>
+
+<!-- canonical URL and no-archive tags -->
+{{ if (and (.IsPage) (or (eq .Section "blog") (eq .Section "tech"))) }}
+    <meta name="robots" content="noarchive" />
+{{ end }}
+    <link rel="canonical" href="{{ .Permalink }}" />

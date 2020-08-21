@@ -4,7 +4,7 @@ theme = "hugo-theme-codex"
 title = "wolverineav"
 languageCode = "en-us"
 baseURL = "https://wolverineav.blog"
-copyright = "© {year}"
+copyright = "© {year} Aditya Vaja"
 
 disqusShortname = "wolverineav"
 googleAnalytics = "UA-172766817-1"
